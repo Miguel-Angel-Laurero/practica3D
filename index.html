@@ -1,0 +1,152 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="importmap">
+        {
+            "imports": {
+            "three": "https://unpkg.com/three/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three/examples/jsm/"
+            }
+        }
+    </script>
+  </head>
+  <body>
+    <script type="module" src="/mundo3D.js"></script>
+  </body>
+</html> -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Salto con detección de suelo</title>
+
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.158.0/build/three.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+
+// Escena
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb);
+
+// Renderer
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Cámara
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+// Luces
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(5, 10, 5);
+scene.add(light);
+
+// Suelo
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(50, 50),
+  new THREE.MeshStandardMaterial({ color: 0x228b22 })
+);
+floor.rotation.x = -Math.PI / 2;
+scene.add(floor);
+
+// Cubo
+const cube = new THREE.Mesh(
+  new THREE.BoxGeometry(2, 2, 2),
+  new THREE.MeshStandardMaterial({ color: 0xff6347 })
+);
+cube.position.y = 1;
+scene.add(cube);
+
+// Cámara hija del cubo
+cube.add(camera);
+camera.position.set(0, 4, 8);
+camera.lookAt(0, 1, 0);
+
+// Raycaster para suelo
+const raycaster = new THREE.Raycaster();
+const downVector = new THREE.Vector3(0, -1, 0);
+const groundObjects = [floor];
+
+// Teclado
+const keys = {
+  ArrowUp: false,
+  ArrowDown: false,
+  ArrowLeft: false,
+  ArrowRight: false,
+  Space: false
+};
+
+window.addEventListener('keydown', e => {
+  if (keys[e.code] !== undefined) keys[e.code] = true;
+});
+
+window.addEventListener('keyup', e => {
+  if (keys[e.code] !== undefined) keys[e.code] = false;
+});
+
+// Movimiento
+const speed = 0.15;
+let velocityY = 0;
+const gravity = -0.015;
+const jumpForce = 0.35;
+
+// Animación
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Movimiento horizontal
+  if (keys.ArrowUp) cube.position.z -= speed;
+  if (keys.ArrowDown) cube.position.z += speed;
+  if (keys.ArrowLeft) cube.position.x -= speed;
+  if (keys.ArrowRight) cube.position.x += speed;
+
+  // Detectar suelo
+  raycaster.set(cube.position, downVector);
+  const intersects = raycaster.intersectObjects(groundObjects);
+  const isOnGround = intersects.length > 0 && intersects[0].distance <= 1.01;
+
+  // Salto
+  if (keys.Space && isOnGround) {
+    velocityY = jumpForce;
+  }
+
+  // Gravedad
+  velocityY += gravity;
+  cube.position.y += velocityY;
+
+  // Ajuste fino al suelo
+  if (isOnGround && velocityY < 0) {
+    cube.position.y = 1;
+    velocityY = 0;
+  }
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+// Resize
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
