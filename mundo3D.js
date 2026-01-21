@@ -1,111 +1,108 @@
- import * as THREE from 'three';
- // Escena
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87ceeb); // cielo azul
+// mundo3D.js
+import * as THREE from 'three';
 
-    // Cámara
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
-    camera.position.set(0, 5, 10);
+let scene, camera, renderer;
+let floor, floorBox;
+let wallBoxes = [];
 
-    // Renderizador
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+export function initMundo3D() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1a1a);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
     document.body.appendChild(renderer.domElement);
 
-    // Luz ambiental
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-    // Luz direccional (como el sol)
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(5, 10, 5);
-    scene.add(directionalLight);
+    // Luces
+    scene.add(new THREE.AmbientLight(0x666666));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(5, 10, 5);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
 
     // Suelo
-    const floorGeometry = new THREE.PlaneGeometry(20, 20);
-    const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x228b22 });
-    const floorY = 0;
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
+    floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(50, 50),
+        new THREE.MeshStandardMaterial({ color: 0x555555 })
+    );
+    floor.rotation.x = -Math.PI/2;
     floor.receiveShadow = true;
     scene.add(floor);
+    floorBox = new THREE.Box3().setFromObject(floor);
 
+    // Paredes
+    const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
+    const wallHeight = 6;
+    const wallThickness = 1;
 
-    // Cubo
-    const cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
-    const cubeMaterial = new THREE.MeshStandardMaterial({ color: 0xff6347 });
-    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    cube.position.y = 1;
-    cube.add(camera);
-    camera.position.set(0, 4, 8);
-    scene.add(cube);
+    function createWall(x, y, z, sx, sy, sz) {
+        const wall = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), wallMaterial);
+        wall.position.set(x, y, z);
+        wall.castShadow = true;
+        wall.receiveShadow = true;
+        scene.add(wall);
 
-    const keys = {
-        ArrowUp: false,
-        ArrowDown: false,
-        ArrowLeft: false,
-        ArrowRight: false,
-        Space: false,
-    };
-    
-    window.addEventListener('keydown', (e) => {
-      if (keys[e.key] !== undefined) {
-        keys[e.key] = true;
-      }
-    });
-
-    window.addEventListener('keyup', (e) => {
-      if (keys[e.key] !== undefined) {
-        keys[e.key] = false;
-      }
-    });
-
-    // Movimiento
-    const speed = 0.15;
-    let velocityY = 0;
-    const gravity = -0.01;
-    const jumpForce = 0.25;
-    let isOnGround = true;
-
-    // Animación
-    function animate() {
-      requestAnimationFrame(animate);
-      
-      if (keys.ArrowUp) cube.position.z -= speed;
-      if (keys.ArrowDown) cube.position.z += speed;
-      if (keys.ArrowLeft) cube.position.x -= speed;
-      if (keys.ArrowRight) cube.position.x += speed;
-
-            // Salto
-      if (keys.Space && isOnGround) {
-        velocityY = jumpForce;
-        isOnGround = false;
-      }
-
-      // Gravedad
-      velocityY += gravity;
-      cube.position.y += velocityY;
-
-      // Colisión con el suelo
-      if (cube.position.y <= 1) {
-        cube.position.y = 1;
-        velocityY = 0;
-        isOnGround = true;
-      }
-
-      renderer.render(scene, camera);
+        const box = new THREE.Box3().setFromObject(wall);
+        wallBoxes.push(box);
     }
 
-    animate();
+    createWall(0, wallHeight/2, -25, 50, wallHeight, wallThickness);
+    createWall(0, wallHeight/2, 25, 50, wallHeight, wallThickness);
+    createWall(-25, wallHeight/2, 0, wallThickness, wallHeight, 50);
+    createWall(25, wallHeight/2, 0, wallThickness, wallHeight, 50);
 
-    // Ajuste al redimensionar
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+   // Columnas opcionales con antorchas
+const columnMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
+const torchMaterial = new THREE.MeshStandardMaterial({ color: 0xff8c00 }); // naranja fuego
+
+for (let x = -15; x <= 15; x += 15) {
+    for (let z = -15; z <= 15; z += 15) {
+        // Crear columna
+        const column = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.7, 0.7, wallHeight, 16),
+            columnMaterial
+        );
+        column.position.set(x+6, wallHeight / 2, z+6);
+        column.castShadow = true;
+        column.receiveShadow = true;
+        scene.add(column);
+        wallBoxes.push(new THREE.Box3().setFromObject(column));
+
+        // --- Antorcha
+        const torch = new THREE.Mesh(
+            new THREE.SphereGeometry(0.3, 8, 8), 
+            torchMaterial
+        );
+        torch.position.set(0, wallHeight / 2 + 1, 0); // encima de la columna
+        column.add(torch); // torch es hija de la columna
+
+        // Luz puntual para simular fuego
+        const light = new THREE.PointLight(0xffa500, 1, 8, 2); // color, intensidad, alcance, decay
+        light.position.set(0, 0, 0); // en el centro de la esfera
+        torch.add(light);
+
+        // Opcional: animar luz para efecto parpadeo
+        light.userData.baseIntensity = 1;
+        light.userData.clock = 0;
+    }
+}
+
+}
+
+export function animateMundo3D() {
+  // Animar luces de antorchas
+    scene.traverse(obj => {
+        if (obj.isPointLight && obj.parent) {
+            obj.userData.clock += 0.05;
+            obj.intensity = obj.userData.baseIntensity + Math.sin(obj.userData.clock * 10) * 0.3;
+        }
     });
+    renderer.render(scene, camera);
+}
+
+export function getSceneCameraRenderer() {
+    return { scene, camera, renderer, floorBox, wallBoxes };
+}
