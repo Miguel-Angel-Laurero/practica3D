@@ -23,10 +23,25 @@ export function initMundo3D() {
     dirLight.castShadow = true;
     scene.add(dirLight);
 
+
+    
     // Suelo
+    // Cargar texturas
+    const textureLoader = new THREE.TextureLoader();
+    const colorMap = textureLoader.load('./textures/floor_color.jpg');
+    const normalMap = textureLoader.load('./textures/floor_normal.jpg');
+    const roughnessMap = textureLoader.load('./textures/floor_roughness.jpg');
+
+    // Crear material con mapas
+    const floorMaterial = new THREE.MeshStandardMaterial({
+        map: colorMap,
+        normalMap: 0,
+        roughnessMap: 0,
+        roughness: 0,
+        metalness: 0
+});
     floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(50, 50),
-        new THREE.MeshStandardMaterial({ color: 0x555555 })
+        new THREE.PlaneGeometry(50, 50),floorMaterial
     );
     floor.rotation.x = -Math.PI/2;
     floor.receiveShadow = true;
