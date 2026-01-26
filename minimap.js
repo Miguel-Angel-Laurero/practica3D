@@ -1,4 +1,4 @@
-// minimap.js
+
 import * as THREE from 'three';
 
 export class MiniMap {
@@ -10,12 +10,6 @@ export class MiniMap {
             player: null,
             coins: []
         };
-
-        const markerGeometry = new THREE.SphereGeometry(0.3, 4, 4);
-        const playerMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        this.markers.player = new THREE.Mesh(markerGeometry, playerMaterial);
-        scene.add(this.markers.player);
-
 
         // Crear cámara cenital ortográfica
         const frustumSize = 40;
@@ -37,7 +31,7 @@ export class MiniMap {
     }
 
     onWindowResize() {
-        const frustumSize = 40;
+        const frustumSize = 50;
         const aspect = window.innerWidth / window.innerHeight;
         this.camera.left = -frustumSize * aspect / 2;
         this.camera.right = frustumSize * aspect / 2;
@@ -49,20 +43,20 @@ export class MiniMap {
     update() {
         if (!this.player) return;
 
-        // Seguir al jugador
-        this.camera.position.x = this.player.position.x;
-        this.camera.position.z = this.player.position.z;
-        this.camera.position.y = 50; // altura fija
-        this.camera.lookAt(
-            this.player.position.x,
-            0,
-            this.player.position.z
-        );
+        // // Seguir al jugador
+        // this.camera.position.x = this.player.position.x;
+        // this.camera.position.z = this.player.position.z;
+        // this.camera.position.y = 12; // altura fija
+        // this.camera.lookAt(
+        //     this.player.position.x,
+        //     0,
+        //     this.player.position.z
+        // );
             // Actualizar marcador del jugador
         if (this.markers.player) {
             this.markers.player.position.x = this.player.position.x;
             this.markers.player.position.z = this.player.position.z;
-            this.markers.player.position.y = 0.5; // altura visible
+            this.markers.player.position.y = 5; // altura visible
         }
     }
 
