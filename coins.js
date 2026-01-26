@@ -1,4 +1,3 @@
-// coins.js
 import * as THREE from 'three';
 
 export class CoinManager {
@@ -19,7 +18,8 @@ export class CoinManager {
     spawnCoins(count) {
         const geometry = new THREE.SphereGeometry(0.3, 16, 16);
         const material = new THREE.MeshStandardMaterial({ color: 0xFFD700 });
-
+        const coinMarker = new THREE.Mesh(geometry, material);
+        
         for (let i = 0; i < count; i++) {
             const coin = new THREE.Mesh(geometry, material);
             coin.position.set(
@@ -29,8 +29,11 @@ export class CoinManager {
             );
             coin.castShadow = true;
             coin.receiveShadow = true;
+            coinMarker.position.copy(coin.position);
             this.scene.add(coin);
+            this.scene.add(coinMarker);
             this.coins.push(coin);
+            if (this.minimap) this.minimap.markers.coins.push(coinMarker);
         }
     }
 

@@ -1,4 +1,3 @@
-// characterController.js
 import * as THREE from 'three';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 
@@ -15,20 +14,35 @@ export class CharacterController {
         this.animations = {};
         this.loader = new FBXLoader();
 
-        this.speed = 0.05;
+        this.walkSpeed = 0.05;
+        this.runSpeed = 0.1;
+        this.currentSpeed = this.walkSpeed;
         this.velocityY = 0;
         this.gravity = -0.015;
         this.jumpForce = 0.35;
 
         this.keys = {};
-        window.addEventListener('keydown', e => this.keys[e.code] = true);
-        window.addEventListener('keyup', e => this.keys[e.code] = false);
+        window.addEventListener('keydown', (e) => {
+        this.keys[e.code] = true;
+        if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+                this.currentSpeed = this.runSpeed;
+        }
+    });
+    window.addEventListener('keyup', (e) => {
+    this.keys[e.code] = false;
+
+        if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+                this.currentSpeed = this.walkSpeed;
+        }
+    });
+
 
         this.clock = new THREE.Clock();
 
         this.loadAnimation('Idle', './models/Idle.fbx');
         this.loadAnimation('Walk', './models/Walk.fbx');
         this.loadAnimation('Jump', './models/Jump.fbx');
+        this.loadAnimation('Run', './models/Run.fbx');
     }
 
     loadAnimation(name, path) {
@@ -69,15 +83,16 @@ export class CharacterController {
         this.mixer.update(delta);
 
         // Movimiento
+        const isRunning =(this.keys.ShiftLeft || this.keys.ShiftRight) && this.currentSpeed === this.runSpeed;
+
         let moveX = 0, moveZ = 0;
         if (this.keys.ArrowUp) moveZ -= 1;
         if (this.keys.ArrowDown) moveZ += 1;
         if (this.keys.ArrowLeft) moveX -= 1;
         if (this.keys.ArrowRight) moveX += 1;
-
         const moving = (moveX !== 0 || moveZ !== 0);
         const moveVector = new THREE.Vector3(moveX, 0, moveZ);
-        if (moving) moveVector.normalize().multiplyScalar(this.speed);
+        if (moving) moveVector.normalize().multiplyScalar(this.currentSpeed);
 
         // --- Colisión XZ con paredes
         const tempBoxXZ = this.playerBox.clone();
@@ -106,7 +121,7 @@ export class CharacterController {
             this.player.quaternion.slerp(targetQuat, 0.2);
         }
 
-        // --- Gravedad y salto
+        // Gravedad y salto
         const deltaY = this.velocityY;
         let futureY = this.player.position.y + deltaY;
 
@@ -132,6 +147,7 @@ export class CharacterController {
 
         // Animaciones
         if (!onGround) this.setAnimation('Jump');
+        else if(isRunning && moving) this.setAnimation('Run');
         else if (moving) this.setAnimation('Walk');
         else this.setAnimation('Idle');
 

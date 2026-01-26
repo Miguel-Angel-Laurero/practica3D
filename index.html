@@ -3,18 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Mazmorra 3D con Monedas</title>
-<style>
-  body { margin: 0; overflow: hidden; }
-  #coinCounter {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: #fff;
-      font-size: 24px;
-      font-family: sans-serif;
-      z-index: 100;
-  }
-</style>
+<link rel="stylesheet" href="styles.css"></script>
 
 <script type="importmap">
 {
@@ -29,43 +18,21 @@
 
 <div id="coinCounter">Monedas: 0</div>
 
-<script type="module">
-import { initMundo3D, animateMundo3D, getSceneCameraRenderer } from './mundo3D.js';
-import { CharacterController } from './characterController.js';
-import { CoinManager } from './coins.js';
+<div id="controls-hud">
+  <h3>Controles</h3>
+  <ul>
+    <li><b>🢁</b> Avanzar</li>
+    <li><b>🢃</b> Retroceder</li>
+    <li><b>🢀</b> Izquierda</li>
+    <li><b>🢂</b> Derecha</li>
+    <li><b>Shift</b> Correr</li>
+    <li><b>Espacio</b> Saltar</li>
+    <li><b>Mouse</b> Mirar</li>
+  </ul>
+</div>
 
-// --- Inicializar el mundo 3D
-initMundo3D();
-const { scene, camera, renderer, floorBox, wallBoxes } = getSceneCameraRenderer();
 
-// --- Inicializar jugador
-const playerController = new CharacterController(scene, camera, floorBox, wallBoxes);
-
-// --- Inicializar monedas
-// Esperamos un poco hasta que el player se haya cargado
-const waitForPlayer = setInterval(() => {
-    if (playerController.player) {
-        const coinManager = new CoinManager(scene, playerController.player, 15);
-        clearInterval(waitForPlayer);
-
-        // --- Loop de animación principal
-        function animate() {
-            requestAnimationFrame(animate);
-            playerController.update();
-            coinManager.update();
-            animateMundo3D();
-        }
-        animate();
-    }
-}, 100);
-
-// --- Resize
-window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-});
-</script>
+<script type="module" src="gameManager.js"></script>
 
 </body>
 </html>

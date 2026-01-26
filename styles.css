@@ -1,3 +1,43 @@
-body{
-    margin:0;
+body { margin: 0; overflow: hidden; }
+#coinCounter {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #fff;
+    font-size: 24px;
+    font-family: sans-serif;
+    z-index: 100;
+    background: none;
+}
+#controls-hud {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 14px;
+  pointer-events: none; /* no bloquea el mouse */
+  background: none;
+}
+
+#controls-hud h3 {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+}
+
+#controls-hud ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#controls-hud li {
+  margin: 2px 0;
+}
+
+#controls-hud b {
+  color: #ffd700;
 }

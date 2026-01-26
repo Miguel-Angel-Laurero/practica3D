@@ -1,4 +1,3 @@
-// mundo3D.js
 import * as THREE from 'three';
 
 let scene, camera, renderer;
