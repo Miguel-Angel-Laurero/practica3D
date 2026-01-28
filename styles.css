@@ -1,7 +1,7 @@
 body { margin: 0; overflow: hidden; }
 #coinCounter {
     position: absolute;
-    top: 10px;
+    top: 50px;
     left: 10px;
     color: #fff;
     font-size: 24px;
@@ -40,4 +40,40 @@ body { margin: 0; overflow: hidden; }
 
 #controls-hud b {
   color: #ffd700;
+}
+/* Estilo para el Título (Arriba Centro) */
+#game-header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    text-align: center;
+    color: white;
+    background: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+    padding: 10px 0;
+    pointer-events: none; /* Permite hacer clic a través del texto al juego */
+    z-index: 10;
+}
+
+#game-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+#game-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 100px); /* deja espacio para el footer */
+}
+/* Estilo para el Footer (Abajo Derecha) */
+#game-footer {
+    position: absolute;
+    height: 30px;
+    width: 100%;
+    bottom: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.3);
 }

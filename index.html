@@ -1,38 +1,42 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Mazmorra 3D con Monedas</title>
-<link rel="stylesheet" href="styles.css"></script>
-
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
+    <meta charset="UTF-8">
+    <title>Mazmorra 3D con Monedas</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+    </script>
 </head>
 <body>
 
-<div id="coinCounter">Monedas: 0</div>
+    <header id="game-header">
+        <h1>CANVAS MAZMORRA INTERACTIVA 3D</h1>
+    </header>
 
-<div id="controls-hud">
-  <h3>Controles</h3>
-  <ul>
-    <li><b>🢁</b> Avanzar</li>
-    <li><b>🢃</b> Retroceder</li>
-    <li><b>🢀</b> Izquierda</li>
-    <li><b>🢂</b> Derecha</li>
-    <li><b>Shift</b> Correr</li>
-    <li><b>Espacio</b> Saltar</li>
-    <li><b>Mouse</b> Mirar</li>
-  </ul>
-</div>
+    <div id="game-container">
+        <div id="coinCounter">Monedas: 0</div>
+        <div id="controls-hud">
+            <h3>Controles</h3>
+            <ul>
+                <li><b>🢁</b> Avanzar</li>
+                <li><b>🢃</b> Retroceder</li>
+                <li><b>🢀</b> Izquierda</li>
+                <li><b>🢂</b> Derecha</li>
+                <li><b>Shift</b> Correr</li>
+            </ul>
+        </div>
+    </div>
+    
+    <footer id="game-footer">
+        Desarrollado con la librería <strong>Three.js</strong>
+    </footer>
 
-
-<script type="module" src="gameManager.js"></script>
-
+    <script type="module" src="gameManager.js"></script>
 </body>
 </html>

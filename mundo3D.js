@@ -1,5 +1,6 @@
 // mundo3D.js
 import * as THREE from 'three';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 
 let scene, camera, renderer;
 let floor, floorBox;
@@ -13,7 +14,7 @@ export function initMundo3D() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
-    document.body.appendChild(renderer.domElement);
+    document.getElementById('game-container').appendChild(renderer.domElement);
 
     // --- Cámara
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -25,12 +26,10 @@ export function initMundo3D() {
     dirLight.castShadow = true;
     scene.add(dirLight);
 
-    // Suelo
-
-    const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x228B22 }); // verde hierba
-
+    // --- Suelo
+    const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x228B22 });
     floor = new THREE.Mesh(new THREE.PlaneGeometry(50, 50), floorMaterial);
-    floor.rotation.x = -Math.PI / 2; // plano horizontal
+    floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     scene.add(floor);
 
@@ -44,8 +43,8 @@ export function initMundo3D() {
     function createWall(x, y, z, sx, sy, sz) {
         const wall = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), wallMaterial);
         wall.position.set(x, y, z);
-        wall.castShadow = true;
-        wall.receiveShadow = true;
+        wall.castShadow = false;
+        wall.receiveShadow = false;
         scene.add(wall);
 
         wallBoxes.push(new THREE.Box3().setFromObject(wall));
@@ -58,7 +57,17 @@ export function initMundo3D() {
 
     // --- Columnas y antorchas
     const columnMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
-    const torchMaterial = new THREE.MeshStandardMaterial({ color: 0xff8c00 });
+
+    // Texturas para la antorcha
+    const textureLoader = new THREE.TextureLoader();
+    const diffuseMap = textureLoader.load('./models/assets/Torch/Torch1_lambert1_AlbedoTransparency.png');
+
+
+    const torchMaterial = new THREE.MeshStandardMaterial({
+        map: diffuseMap
+    });
+
+    const fbxLoader = new FBXLoader();
 
     for (let x = -15; x <= 15; x += 15) {
         for (let z = -15; z <= 15; z += 15) {
@@ -73,21 +82,29 @@ export function initMundo3D() {
             scene.add(column);
             wallBoxes.push(new THREE.Box3().setFromObject(column));
 
-            // Antorcha
-            const torch = new THREE.Mesh(
-                new THREE.SphereGeometry(0.3, 8, 8),
-                torchMaterial
-            );
-            torch.position.set(0, wallHeight / 2 + 1, 0);
-            column.add(torch);
+            // Antorcha (FBX)
+            fbxLoader.load('./models/assets/Torch/Torch1.fbx', (torch) => {
+                torch.traverse(c => {
+                    if (c.isMesh) {
+                        c.castShadow = true;
+                        c.receiveShadow = true;
+                        c.material = torchMaterial;
+                    }
+                });
 
-            // Luz puntual
-            const light = new THREE.PointLight(0xffa500, 1, 8, 2);
-            light.position.set(0, 0, 0);
-            torch.add(light);
+                torch.scale.setScalar(0.15);
+                torch.rotation.y = -Math.PI / 2;  // girar 90 grados en Y
+                torch.position.set(-1, wallHeight / 30, 0);
+                column.add(torch);
 
-            light.userData.baseIntensity = 1;
-            light.userData.clock = 0;
+                // Luz puntual dentro del FBX
+                const light = new THREE.PointLight(0xffa500, 5, 8, 2);
+                light.position.set(0, 3, 0.5);
+                torch.add(light);
+
+                light.userData.baseIntensity = 1;
+                light.userData.clock = 0;
+            });
         }
     }
 }
