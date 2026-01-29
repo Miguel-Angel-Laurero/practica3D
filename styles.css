@@ -1,15 +1,18 @@
-body { margin: 0; overflow: hidden; }
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body { margin: 0; overflow: hidden; font-family: 'Press Start 2P', cursive;}
 #coinCounter {
+    
     position: absolute;
     top: 50px;
     left: 10px;
     color: #fff;
     font-size: 24px;
-    font-family: sans-serif;
     z-index: 100;
     background: none;
 }
 #controls-hud {
+ 
   position: fixed;
   bottom: 20px;
   left: 20px;
@@ -17,7 +20,6 @@ body { margin: 0; overflow: hidden; }
   color: #fff;
   padding: 12px 16px;
   border-radius: 8px;
-  font-family: monospace;
   font-size: 14px;
   pointer-events: none; /* no bloquea el mouse */
   background: none;
